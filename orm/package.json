@@ -1,5 +1,5 @@
 {
-  "name": "bikinacara-be",
+  "name": "orm",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,18 +12,19 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/client": "^6.12.0",
-    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
-    "cloudinary": "^2.7.0",
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.2",
-    "prisma": "^6.12.0",
-    "streamifier": "^0.1.1",
-    "zod": "^4.0.5"
+    "prisma": "^6.12.0"
   },
   "devDependencies": {
-    "dotenv": "^17.2.0",
-    "nodemon": "^3.1.10"
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.1.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
