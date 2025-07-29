@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+        
+model User {
+  id              String   @id @default(uuid()) @db.Uuid
+  name            String
+  email           String   @unique
+  password        String
+  profilePic      String?
+  role            Role
+  referralCode    String   @unique
+  referredById    String?  @db.Uuid
+  referredBy      User?    @relation("Referral", fields: [referredById], references: [id])
+  referredUsers   User[]   @relation("Referral")
+  pointsBalance   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("users")
+  }
+
+  enum Role {
+  ATTENDEE
+  ORGANIZER
+}
+
+model Event {
+  id           String   @id @default(uuid()) @db.Uuid
+  organizerId  String   @db.Uuid
+  title        String
+  description  String
+  date         DateTime
+  time         DateTime
+  location     String
+  eventType    EventType
+  totalSeats   Int
+  createdAt    DateTime @default(now())
+
+ @@map("events")
+  }
+
+enum EventType {
+  FREE
+  PAID
+}
