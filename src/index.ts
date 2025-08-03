@@ -1,31 +1,42 @@
 import express, { Request, Response, NextFunction } from "express";
-import { PORT } from "./config";
+import dotenv from "dotenv";
 
-// Router
-// import userRouter from "./routers/user.router";
-// import expenseRouter from "./routers/expense.router";
-// import authRouter from "./routers/auth.router";
+// Load environment variables
+dotenv.config();
 
-const port = PORT || 8080;
+// Import routers
+import userRouter from "./routers/user.router";
+import authRouter from "./routers/auth.router";
+// import eventRouter from "./routers/event.router";
+// import ticketRouter from "./routers/ticket.router";
+// import transactionRouter from "./routers/transaction.router";
+// import reviewRouter from "./routers/review.router";
+// import promoRouter from "./routers/promo.router";
+// import referralRouter from "./routers/referral.router";
+// import pointRouter from "./routers/point.router";
 
 const app = express();
+const PORT = process.env.PORT || 8080;
 
-// MIDDLEWARE
+// Middleware
 app.use(express.json());
 
-app.get("/api", (req: Request, res: Response) => {
-  res.send("API is running well");
+// Health check
+app.get("/", (_req: Request, res: Response) => {
+  res.send("API is running");
 });
 
-// ENDPOINT
-// app.use("/api/users", userRouter);
-// app.use("/api/auth", authRouter);
+// Routes
+app.use("/api/users", userRouter);
+app.use("/api/auth", authRouter);
 
-// ERROR MIDDLEWARE
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).send(err.message);
+// Global error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ message: err.message });
 });
 
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server started at http://localhost:${PORT}`);
 });
