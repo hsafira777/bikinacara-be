@@ -7,13 +7,8 @@ dotenv.config();
 // Import routers
 import userRouter from "./routers/user.router";
 import authRouter from "./routers/auth.router";
-// import eventRouter from "./routers/event.router";
-// import ticketRouter from "./routers/ticket.router";
-// import transactionRouter from "./routers/transaction.router";
-// import reviewRouter from "./routers/review.router";
-// import promoRouter from "./routers/promo.router";
-// import referralRouter from "./routers/referral.router";
-// import pointRouter from "./routers/point.router";
+import eventRouter from "./routers/event.router";
+// import other routers if needed...
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -29,6 +24,8 @@ app.get("/", (_req: Request, res: Response) => {
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
+
+app.use("/api/events", eventRouter);
 
 // Global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

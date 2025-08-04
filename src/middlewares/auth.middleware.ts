@@ -2,8 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { IJwtPayload } from "../interfaces/auth.types";
 
-// Gunakan kunci dari env atau fallback sementara
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret";
+// Gunakan kunci dari env atau fallback
+const JWT_SECRET = process.env.JWT_SECRET || "YUKbikinacaraCOY!";
 
 // Extend global Express Request agar punya req.user dengan tipe IJwtPayload
 declare global {

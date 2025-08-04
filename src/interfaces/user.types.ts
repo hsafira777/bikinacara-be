@@ -1,24 +1,3 @@
-// export interface IRegisterParams {
-//   name: string;
-//   email: string;
-//   password: string;
-//   role: "attendee" | "organizer";
-//   referredById?: string;
-//   referralCode?: string;
-// }
-
-// export interface ILoginParams {
-//   email: string;
-//   password: string;
-// }
-
-// export interface IUserPayload {
-//   id: string;
-//   email: string;
-//   name: string;
-//   role: string;
-// }
-
 export interface ICreateUserParam {
   name: string;
   email: string;
