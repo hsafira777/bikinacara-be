@@ -5,6 +5,7 @@ import {
   getEventByIdController,
   updateEventController,
   deleteEventController,
+  getFilteredEventsController,
 } from "../controllers/event.controller";
 import { verifyToken } from "../middlewares/auth.middleware";
 
@@ -15,5 +16,6 @@ router.get("/:id", getEventByIdController);
 router.post("/", verifyToken, createEventController);
 router.put("/:id", verifyToken, updateEventController);
 router.delete("/:id", verifyToken, deleteEventController);
+router.get("/filter", getFilteredEventsController);
 
 export default router;

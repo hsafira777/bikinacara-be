@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getFilteredEvents } from "../services/eventService";
+import { getFilteredEvents } from "../services/event.service";
 
 export const getFilteredEventsHandler = async (req: Request, res: Response) => {
   try {

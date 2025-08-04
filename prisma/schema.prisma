@@ -48,6 +48,7 @@ model Event {
   date         DateTime
   time         DateTime
   location     String
+  eventCategory EventCategory
   eventType    EventType
   totalSeats   Int
   createdAt    DateTime @default(now())
@@ -65,6 +66,17 @@ model Event {
 enum EventType {
   FREE
   PAID  
+}
+
+enum EventCategory {
+  MUSIC
+  NIGHTLIFE
+  ARTS
+  HOLIDAYS
+  EDUCATION
+  HOBBIES
+  BUSINESS
+  FOOD_AND_DRINK
 }
 
 model TicketType {

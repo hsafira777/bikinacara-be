@@ -26,3 +26,13 @@ export const deleteEventController = async (req: Request, res: Response) => {
   await eventRepo.deleteEvent(req.params.id);
   res.status(204).send();
 };
+
+export const getFilteredEventsController = async (req: Request, res: Response) => {
+  try {
+    const events = await eventRepo.getFilteredEvents(req.query);
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching filtered events:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

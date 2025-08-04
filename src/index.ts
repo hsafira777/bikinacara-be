@@ -29,6 +29,7 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 
 app.use("/api/events", eventRouter);
+app.use("/api/filter", eventRouter)
 
 app.use("/api/transactions", transactionRoutes);
 
