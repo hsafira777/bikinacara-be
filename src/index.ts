@@ -8,6 +8,9 @@ dotenv.config();
 import userRouter from "./routers/user.router";
 import authRouter from "./routers/auth.router";
 import eventRouter from "./routers/event.router";
+import transactionRoutes from "./routers/transaction.router";
+import dashboardRoutes from "./routers/dashboard.router";
+import statisticRoutes from "./routers/statistic.router";
 // import other routers if needed...
 
 const app = express();
@@ -26,6 +29,11 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 
 app.use("/api/events", eventRouter);
+
+app.use("/api/transactions", transactionRoutes);
+
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/statistics", statisticRoutes);
 
 // Global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

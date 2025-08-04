@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { IJwtPayload } from "../interfaces/auth.types";
 
-// Gunakan kunci dari env atau fallback
 const JWT_SECRET = process.env.JWT_SECRET || "YUKbikinacaraCOY!";
 
 // Extend global Express Request agar punya req.user dengan tipe IJwtPayload
@@ -14,7 +13,7 @@ declare global {
   }
 }
 
-// Middleware utama: verifikasi token JWT
+// Middleware utama: token JWT
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
