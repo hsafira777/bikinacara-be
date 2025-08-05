@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import * as eventRepo from "../repositories/event.repository";
 
 export const createEventController = async (req: Request, res: Response) => {
-  const event = await eventRepo.createEvent({ ...req.body });
+  const file = req.file;
+  const event = await eventRepo.createEvent({ ...req.body, file });
   res.status(201).json(event);
-};
+} 
 
 export const getAllEventsController = async (_req: Request, res: Response) => {
   const events = await eventRepo.getAllEvents();

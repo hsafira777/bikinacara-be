@@ -1,9 +1,29 @@
+import cloudinary from "../lib/cloudinary";
 import prisma from "../lib/prisma";
-import { Prisma } from "@prisma/client";
+import { EventCategory, EventType, Prisma } from "@prisma/client";
+import { EventQuery } from "../interfaces/event.types";
+import { Express } from "express";
 
 // CREATE event
-export const createEvent = (data: Prisma.EventCreateInput) => {
-  return prisma.event.create({ data });
+export const createEvent = async (
+  data: Prisma.EventCreateInput,
+  file?: Express.Multer.File
+) => {
+  let imageUrl: string | undefined;
+
+  if (file) {
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "event_images",
+    });
+    imageUrl = result.secure_url;
+  }
+
+  return prisma.event.create({
+    data: {
+      ...data,
+      image: imageUrl,
+    } as Prisma.EventCreateInput,
+  });
 };
 
 // READ all events
@@ -33,23 +53,52 @@ export const deleteEvent = (id: string) => {
   });
 };
 
-// GET filtered events by type
-export const getFilteredEvents = async (query: any) => {
-  const { search = "", category, location, page = "1", limit = "10" } = query;
+// GET Upcoming Events
+export const getUpcomingEvents = () => {
+  return prisma.event.findMany({
+    where: {
+      date: {
+        gte: new Date(),
+      },
+    },
+    orderBy: {
+      date: "asc",
+    },
+  });
+};
 
-  const pageNumber = parseInt(page, 10) || 1;
-  const pageSize = parseInt(limit, 10) || 10;
+// GET filtered events by category
+export const getFilteredEvents = async (query: EventQuery) => {
+  const {
+    search = "",
+    category,
+    location,
+    eventType,
+    page = "1",
+    limit = "10",
+  } = query;
+
+  const pageNumber = Number(page) || 1;
+  const pageSize = Number(limit) || 10;
   const skip = (pageNumber - 1) * pageSize;
 
-  const filters: any = {
-    title: {
-      contains: search,
-      mode: "insensitive",
-    },
+  const filters: Prisma.EventWhereInput = {
+    ...(search && {
+      OR: [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ],
+    }),
+    ...(category &&
+      Object.values(EventCategory).includes(category as EventCategory) && {
+        eventCategory: category as EventCategory,
+      }),
+    ...(location && { location }),
+    ...(eventType &&
+      Object.values(EventType).includes(eventType as EventType) && {
+        eventType: eventType as EventType,
+      }),
   };
-
-  if (category) filters.category = category;
-  if (location) filters.location = location;
 
   const [events, total] = await Promise.all([
     prisma.event.findMany({
