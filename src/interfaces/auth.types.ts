@@ -7,7 +7,7 @@ export interface IRegisterParam {
   email: string;
   password: string;
   name: string;
-  profilePic?: string;
+
   role: "ATTENDEE" | "ORGANIZER";
 }
 

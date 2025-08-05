@@ -26,7 +26,6 @@ export async function registerUser(params: IRegisterParam) {
       email: params.email,
       password: hashed,
       name: params.name,
-      profilePic: params.profilePic,
       role: params.role || "user",
     },
   });
