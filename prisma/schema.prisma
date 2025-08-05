@@ -48,6 +48,7 @@ model Event {
   date         DateTime
   time         DateTime
   location     String
+  image        String?
   eventCategory EventCategory
   eventType    EventType
   totalSeats   Int
