@@ -23,11 +23,10 @@ export async function registerUser(params: IRegisterParam) {
 
   return prisma.user.create({
     data: {
+      role: params.role,
+      name: params.name,
       email: params.email,
       password: hashed,
-      name: params.name,
-      profilePic: params.profilePic,
-      role: params.role || "user",
     },
   });
 }
