@@ -1,4 +1,3 @@
-
 import { PrismaClient } from "@prisma/client";
 import dayjs from "dayjs";
 
@@ -37,7 +36,7 @@ export const applyReferralOnRegister = async (
     },
   });
 
-  // Update pointsBalance
+  // Update points balance
   await prisma.user.update({
     where: { id: referrer.id },
     data: {
@@ -74,7 +73,6 @@ export const applyPointsAndDiscount = async (
   if (!user) throw new Error("User not found");
 
   const usedPoints = Math.min(user.pointsBalance, ticketPrice - discount);
-
   const finalPrice = ticketPrice - discount - usedPoints;
 
   return {
