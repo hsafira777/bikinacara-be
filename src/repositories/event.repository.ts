@@ -104,6 +104,7 @@ export const getUpcomingEvents = () => {
     orderBy: {
       date: "asc",
     },
+    take: 3,
   });
 };
 
