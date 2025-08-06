@@ -48,8 +48,27 @@ export const createEvent = async (
 };
 
 // READ all events
-export const getAllEvents = () => {
-  return prisma.event.findMany();
+export const getAllEvents = async (page = 1, limit = 9) => {
+  const pageNumber = Number(page) || 1;
+  const pageSize = Number(limit) || 9;
+  const skip = (pageNumber - 1) * pageSize;
+
+  const [events, total] = await Promise.all([
+    prisma.event.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.event.count(),
+  ]);
+
+  return {
+    events,
+    total,
+    page: pageNumber,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
 };
 
 // READ event by ID
