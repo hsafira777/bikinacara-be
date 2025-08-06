@@ -1,10 +1,7 @@
-// File: prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
 import { faker } from "@faker-js/faker";
-
-const prisma = new PrismaClient();
 
 async function main() {
   const users = [];
