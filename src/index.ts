@@ -2,8 +2,6 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
-
-// Load environment variables
 dotenv.config();
 
 // Import routers
@@ -26,18 +24,12 @@ app.use(
 
 const PORT = process.env.PORT || 8080;
 
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
+
 app.get("/", (req: Request, res: Response) => {
   res.send("API is running");
 });
@@ -52,7 +44,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/statistics", statisticRoutes);
 
-// Global error handler
+// Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ message: err.message });
