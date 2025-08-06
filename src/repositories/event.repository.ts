@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import { EventCategory, EventType, Prisma } from "@prisma/client";
 import { EventQuery } from "../interfaces/event.types";
 import { Express } from "express";
+import { startOfToday } from "date-fns";
 
 // CREATE event
 export const createEvent = async (
@@ -75,13 +76,10 @@ export const deleteEvent = (id: string) => {
 
 // GET Upcoming Events
 export const getUpcomingEvents = () => {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
   return prisma.event.findMany({
     where: {
       date: {
-        gte: todayStart,
+        gte: startOfToday(),
       },
     },
     orderBy: {
