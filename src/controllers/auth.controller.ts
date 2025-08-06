@@ -17,8 +17,6 @@ export async function loginUser(req: Request, res: Response) {
     const user = await findUserByEmail(email);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-
-
     const token = jwt.sign(
       {
         id: user.id,
@@ -26,7 +24,7 @@ export async function loginUser(req: Request, res: Response) {
         email: user.email,
         role: user.role,
       },
-      process.env.JWT_SECRET!, 
+      process.env.JWT_SECRET!,
       { expiresIn: "1d" }
     );
 
@@ -50,12 +48,22 @@ export async function loginUser(req: Request, res: Response) {
 export async function registerNewUser(req: Request, res: Response) {
   try {
     const { referralCode, ...userData } = req.body;
-    const user = await registerUser(userData);
+
+    const user = await registerUser({
+      ...userData,
+      referralCode: referralCode || undefined,
+    });
 
     if (referralCode) {
-      await applyReferralOnRegister(user.id, referralCode);
+      try {
+        await applyReferralOnRegister(user.id, referralCode);
+        } catch (err) {
+        console.error("Error applying referral:", err);
+        return res
+          .status(400)
+          .json({ message: "Referral code is invalid or expired" });
+      }
     }
-
     return res.status(201).json({
       message: "Registration successful",
       user: {
@@ -63,8 +71,8 @@ export async function registerNewUser(req: Request, res: Response) {
         role: user.role,
         name: user.name,
         email: user.email,
-        referralCode: referralCode,
-        referredBy: referralCode || undefined,
+        referralCode: user.referralCode,
+        referredBy: user.referredById || undefined,
       },
     });
   } catch (err: any) {

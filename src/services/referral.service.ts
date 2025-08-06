@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 const REFERRAL_POINT = 10000;
 const REFERRAL_DISCOUNT_PERCENTAGE = 10;
-const REFERRAL_EXPIRY_MONTHS = 3;
+// const REFERRAL_EXPIRY_MONTHS = 3;
 
 export const applyReferralOnRegister = async (
   referredUserId: string,
@@ -17,7 +17,7 @@ export const applyReferralOnRegister = async (
 
   if (!referrer) throw new Error("Referral code not found");
 
-  // Save referral relation
+
   await prisma.referral.create({
     data: {
       usedById: referrer.id,
@@ -26,17 +26,17 @@ export const applyReferralOnRegister = async (
     },
   });
 
-  // Generate points for referrer
+
   await prisma.point.create({
     data: {
       userId: referrer.id,
       amount: REFERRAL_POINT,
       source: "REFERRAL",
-      expiresAt: dayjs().add(REFERRAL_EXPIRY_MONTHS, "month").toDate(),
+      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 3 bulan
     },
   });
 
-  // Update points balance
+
   await prisma.user.update({
     where: { id: referrer.id },
     data: {
@@ -46,6 +46,7 @@ export const applyReferralOnRegister = async (
     },
   });
 };
+
 
 export const applyPointsAndDiscount = async (
   userId: string,
@@ -59,7 +60,7 @@ export const applyPointsAndDiscount = async (
     where: {
       referredUserId: userId,
       createdAt: {
-        gte: dayjs().subtract(REFERRAL_EXPIRY_MONTHS, "month").toDate(),
+        gte: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       },
     },
   });

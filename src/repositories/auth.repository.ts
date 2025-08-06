@@ -1,6 +1,7 @@
 import prisma from "../lib/prisma";
 import { compare, genSaltSync, hashSync } from "bcrypt";
 import { ILoginParam, IRegisterParam } from "../interfaces/auth.types";
+import { User } from "@prisma/client";
 
 export async function findUserByEmail(email: string) {
   return prisma.user.findUnique({ where: { email } });
@@ -27,18 +28,12 @@ export async function registerUser(params: IRegisterParam) {
 
   const referralCode = generateReferralCode(params.name);
 
-  let referredById: string | undefined = undefined;
-
-  // Cek apakah user daftar pakai kode referral
-  if (params.referralCode) {
-    const referrer = await prisma.user.findUnique({
-      where: { referralCode: params.referralCode },
-    });
-
-    if (referrer) {
-      referredById = referrer.id;
-    }
-  }
+  // Cari user yang memberikan referral (jika ada)
+  const referredByUser: User | null = params.referralCode
+    ? await prisma.user.findUnique({
+        where: { referralCode: params.referralCode },
+      })
+    : null;
 
   return prisma.user.create({
     data: {
@@ -46,8 +41,9 @@ export async function registerUser(params: IRegisterParam) {
       name: params.name,
       email: params.email,
       password: hashed,
-      referralCode,
-      referredById,
+      referralCode: referralCode,
+      referredById: referredByUser?.id ?? null, // ← Ini otomatis null jika gak ada referral
     },
   });
+  
 }
