@@ -75,10 +75,13 @@ export const deleteEvent = (id: string) => {
 
 // GET Upcoming Events
 export const getUpcomingEvents = () => {
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
   return prisma.event.findMany({
     where: {
       date: {
-        gte: new Date(),
+        gte: todayStart,
       },
     },
     orderBy: {

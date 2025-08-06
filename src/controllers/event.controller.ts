@@ -28,6 +28,17 @@ export const deleteEventController = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+export const getUpcomingEventsController = async ( _req: Request, res: Response ) => {
+  try {
+    const events = await eventRepo.getUpcomingEvents();
+    res.status(200).json(events);
+  } catch (error) {
+    console.error("Error fetching upcoming events:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 export const getFilteredEventsController = async (req: Request, res: Response) => {
   try {
     const events = await eventRepo.getFilteredEvents(req.query);
