@@ -1,113 +1,162 @@
+// File: prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
-import { createTransaction } from "../src/services/transaction.service"; // sesuaikan path-nya
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
+import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Buat user
-  const user = await prisma.user.create({
-    data: {
-      id: uuid(),
-      name: "Jane Doe",
-      email: "janedoe@example.com",
-      password: "hashedpassword",
-      role: "ATTENDEE",
-    },
-  });
+  const users = [];
+  const organizers = [];
 
-  // 2. Buat organizer
-  const organizer = await prisma.user.create({
-    data: {
-      id: uuid(),
-      name: "Organizer Keren",
-      email: "organizerkeren@example.com",
-      password: "hashedpassword",
-      role: "ORGANIZER",
-    },
-  });
+  // Buat 5 user attendee
+  for (let i = 0; i < 2; i++) {
+    const user = await prisma.user.create({
+      data: {
+        id: uuid(),
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        role: "ATTENDEE",
+      },
+    });
+    users.push(user);
+  }
 
-  // 3. Buat event
-  const event = await prisma.event.create({
-    data: {
-      id: uuid(),
-      title: "Music Fest",
-      description: "Biggest music event",
-      date: new Date("2025-09-01"),
-      time: new Date("1970-01-01T20:00:00.000Z"),
-      location: "Jakarta",
-      eventCategory: "MUSIC",
-      eventType: "PAID",
-      totalSeats: 1000,
-      organizerId: organizer.id,
-    },
-  });
+  // Buat 5 organizer
+  for (let i = 0; i < 2; i++) {
+    const organizer = await prisma.user.create({
+      data: {
+        id: uuid(),
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        role: "ORGANIZER",
+      },
+    });
+    organizers.push(organizer);
+  }
 
-  // 4. Buat ticketType
-  const ticketType = await prisma.ticketType.create({
-    data: {
-      id: uuid(),
-      eventId: event.id,
-      name: "General Admission",
-      price: 50000,
-      quota: 100,
-    },
-  });
+  for (let i = 0; i < 20; i++) {
+    const user = faker.helpers.arrayElement(users);
+    const organizer = faker.helpers.arrayElement(organizers);
 
-  // 5. Tambahkan point user
-  await prisma.point.createMany({
-    data: [
-      {
+    const eventDate = faker.date.between({
+      from: dayjs().subtract(5, "year").toDate(),
+      to: dayjs().add(1, "year").toDate(),
+    });
+
+    const event = await prisma.event.create({
+      data: {
+        id: uuid(),
+        title: faker.lorem.words(3),
+        description: faker.lorem.sentence(),
+        date: eventDate,
+        time: dayjs(eventDate)
+          .set("hour", faker.number.int({ min: 8, max: 22 }))
+          .toDate(),
+        location: faker.location.city(),
+        eventCategory: "MUSIC",
+        eventType: "PAID" ,
+        totalSeats: faker.number.int({ min: 50, max: 500 }),
+        organizerId: organizer.id,
+      },
+    });
+
+    const ticketType = await prisma.ticketType.create({
+      data: {
+        id: uuid(),
+        eventId: event.id,
+        name: "General",
+        price: faker.number.int({ min: 20000, max: 100000 }),
+        quota: faker.number.int({ min: 10, max: 200 }),
+      },
+    });
+
+    await prisma.point.createMany({
+      data: [
+        {
+          id: uuid(),
+          userId: user.id,
+          amount: 10000,
+          source: "REFERRAL",
+          expiresAt: dayjs().add(30, "days").toDate(),
+          redeemed: false,
+        },
+        {
+          id: uuid(),
+          userId: user.id,
+          amount: 5000,
+          source: "REDEMPTION",
+          expiresAt: dayjs().add(60, "days").toDate(),
+          redeemed: false,
+        },
+      ],
+    });
+
+    const referrer = await prisma.user.create({
+      data: {
+        id: uuid(),
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        role: "ATTENDEE",
+      },
+    });
+
+    await prisma.referral.create({
+      data: {
+        id: uuid(),
+        usedById: referrer.id,
+        referredUserId: user.id,
+        referralCodeUsed: faker.string.alphanumeric(6).toUpperCase(),
+        createdAt: faker.date.recent({ days: 90 }),
+      },
+    });
+
+    await prisma.discount.create({
+      data: {
         id: uuid(),
         userId: user.id,
-        amount: 10000,
-        source: "REFERRAL",
-        expiresAt: dayjs().add(30, "days").toDate(),
-        redeemed: false,
+        percentage: parseFloat(
+          faker.number.float({ min: 5, max: 50 }).toFixed(2)
+        ),
+        expiredAt: faker.date.between({
+          from: dayjs().subtract(5, "year").toDate(),
+          to: new Date(),
+        }),
+        isUsed: faker.datatype.boolean(),
       },
-      {
+    });
+
+    const transaction = await prisma.transaction.create({
+      data: {
         id: uuid(),
         userId: user.id,
-        amount: 5000,
-        source: "REDEMPTION",
-        expiresAt: dayjs().add(60, "days").toDate(),
-        redeemed: false,
+        eventId: event.id,
+        totalPrice: ticketType.price * 2,
+        appliedDiscount: 0,
+        usedPoints: 5000,
+        finalPrice: ticketType.price * 2 - 5000,
+        paymentStatus: "PAID",
+        createdAt: faker.date.recent({ days: 100 }),
       },
-    ],
-  });
+    });
 
-  // 6. Buat referral user (jika ingin test diskon referral)
-  const referrer = await prisma.user.create({
-    data: {
-      id: uuid(),
-      name: "Referrer",
-      email: "referrer@example.com",
-      password: "hashedpassword",
-      role: "ATTENDEE",
-    },
-  });
+    await prisma.ticketPurchase.create({
+      data: {
+        id: uuid(),
+        transactionId: transaction.id,
+        attendeeId: user.id,
+        ticketTypeId: ticketType.id,
+        quantity: 2,
+        createdAt: transaction.createdAt,
+      },
+    });
+  }
 
-  await prisma.referral.create({
-    data: {
-      id: uuid(),
-      usedById: referrer.id,
-      referredUserId: user.id,
-      referralCodeUsed: "REF123",
-      createdAt: dayjs().subtract(1, "month").toDate(), // masih aktif (≤ 3 bulan)
-    },
-  });
-
-  // 7. Panggil service untuk buat transaksi
-  const transaction = await createTransaction({
-    userId: user.id,
-    eventId: event.id,
-    ticketTypeId: ticketType.id,
-    quantity: 2,
-    usePoints: true,
-  });
-
-  console.log("Transaction created:", transaction.id);
+  console.log("done");
 }
 
 main()
@@ -115,6 +164,4 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());
