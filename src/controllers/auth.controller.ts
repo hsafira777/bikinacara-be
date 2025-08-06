@@ -1,12 +1,8 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config";
-import {
-  findUserByEmail,
-  verifyPassword,
-  registerUser,
-} from "../repositories/auth.repository";
+import { findUserByEmail, registerUser } from "../repositories/auth.repository";
 import { ILoginParam } from "../interfaces/auth.types";
+import { applyReferralOnRegister } from "../services/referral.service";
 
 export async function loginUser(req: Request, res: Response) {
   try {
@@ -21,12 +17,16 @@ export async function loginUser(req: Request, res: Response) {
     const user = await findUserByEmail(email);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const valid = await verifyPassword(password, user.password);
-    if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET!,
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      process.env.JWT_SECRET!, 
       { expiresIn: "1d" }
     );
 
@@ -41,13 +41,21 @@ export async function loginUser(req: Request, res: Response) {
       },
     });
   } catch (err: any) {
-    return res.status(500).json({ message: err.message });
+    return res
+      .status(500)
+      .json({ message: err.message || "Internal server error" });
   }
 }
 
 export async function registerNewUser(req: Request, res: Response) {
   try {
-    const user = await registerUser(req.body);
+    const { referralCode, ...userData } = req.body;
+    const user = await registerUser(userData);
+
+    if (referralCode) {
+      await applyReferralOnRegister(user.id, referralCode);
+    }
+
     return res.status(201).json({
       message: "Registration successful",
       user: {
@@ -55,9 +63,13 @@ export async function registerNewUser(req: Request, res: Response) {
         role: user.role,
         name: user.name,
         email: user.email,
+        referralCode: referralCode,
+        referredBy: referralCode || undefined,
       },
     });
   } catch (err: any) {
-    return res.status(400).json({ message: err.message });
+    return res
+      .status(400)
+      .json({ message: err.message || "Registration failed" });
   }
 }
