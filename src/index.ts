@@ -1,8 +1,12 @@
 import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+
 
 // Load environment variables
 dotenv.config();
+
+
 
 // Import routers
 import userRouter from "./routers/user.router";
@@ -16,27 +20,31 @@ import statisticRoutes from "./routers/statistic.router";
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
 // Middleware
 app.use(express.json());
 
 // Health check
-app.get("/", (_req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("API is running");
 });
 
 // Routes
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
-
 app.use("/api/events", eventRouter);
-
 app.use("/api/transactions", transactionRoutes);
-
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/statistics", statisticRoutes);
 
 // Global error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ message: err.message });
 });

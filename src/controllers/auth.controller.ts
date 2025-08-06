@@ -35,9 +35,9 @@ export async function loginUser(req: Request, res: Response) {
       token,
       user: {
         id: user.id,
+        role: user.role,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     });
   } catch (err: any) {
@@ -52,9 +52,9 @@ export async function registerNewUser(req: Request, res: Response) {
       message: "Registration successful",
       user: {
         id: user.id,
+        role: user.role,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     });
   } catch (err: any) {
