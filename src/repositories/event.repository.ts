@@ -6,7 +6,17 @@ import { Express } from "express";
 
 // CREATE event
 export const createEvent = async (
-  data: Prisma.EventCreateInput,
+  data: {
+    title: string;
+    description: string;
+    date: Date | string;
+    time: Date | string;
+    location: string;
+    eventCategory: EventCategory;
+    eventType: EventType;
+    totalSeats: number;
+    organizerId: string;
+  },
   file?: Express.Multer.File
 ) => {
   let imageUrl: string | undefined;
@@ -20,9 +30,19 @@ export const createEvent = async (
 
   return prisma.event.create({
     data: {
-      ...data,
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      time: data.time,
+      location: data.location,
+      eventCategory: data.eventCategory,
+      eventType: data.eventType,
+      totalSeats: Number(data.totalSeats),
+      organizer: {
+        connect: { id: data.organizerId },
+      },
       image: imageUrl,
-    } as Prisma.EventCreateInput,
+    },
   });
 };
 

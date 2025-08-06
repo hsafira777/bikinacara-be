@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 
 // Load environment variables
@@ -14,10 +15,19 @@ import statisticRoutes from "./routers/statistic.router";
 // import other routers if needed...
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Health check
 app.get("/", (_req: Request, res: Response) => {

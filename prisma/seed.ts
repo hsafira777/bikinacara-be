@@ -1,104 +1,118 @@
 import { PrismaClient } from "@prisma/client";
+import { createTransaction } from "../src/services/transaction.service"; // sesuaikan path-nya
+import dayjs from "dayjs";
+import { v4 as uuid } from "uuid";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  // 1. Buat user
+  const user = await prisma.user.create({
+    data: {
+      id: uuid(),
+      name: "Jane Doe",
+      email: "janedoe@example.com",
+      password: "hashedpassword",
+      role: "ATTENDEE",
+    },
+  });
+
+  // 2. Buat organizer
   const organizer = await prisma.user.create({
     data: {
-      id: "a2222222-b222-c333-d444-e55555555555",
-      name: "Organizer Dummy 2",
-      email: "organizer2@example.com",
-      password: "dummyhashedpassword2",
+      id: uuid(),
+      name: "Organizer Keren",
+      email: "organizerkeren@example.com",
+      password: "hashedpassword",
       role: "ORGANIZER",
     },
   });
 
-  await prisma.event.createMany({
+  // 3. Buat event
+  const event = await prisma.event.create({
+    data: {
+      id: uuid(),
+      title: "Music Fest",
+      description: "Biggest music event",
+      date: new Date("2025-09-01"),
+      time: new Date("1970-01-01T20:00:00.000Z"),
+      location: "Jakarta",
+      eventCategory: "MUSIC",
+      eventType: "PAID",
+      totalSeats: 1000,
+      organizerId: organizer.id,
+    },
+  });
+
+  // 4. Buat ticketType
+  const ticketType = await prisma.ticketType.create({
+    data: {
+      id: uuid(),
+      eventId: event.id,
+      name: "General Admission",
+      price: 50000,
+      quota: 100,
+    },
+  });
+
+  // 5. Tambahkan point user
+  await prisma.point.createMany({
     data: [
       {
-        id: "e1111111-b222-c333-d444-e55555555555",
-        organizerId: organizer.id,
-        title: "Gratis Ngoding Bareng",
-        description: "Belajar ngoding dari nol secara gratis!",
-        date: new Date("2025-08-10"),
-        time: new Date("2025-08-10T14:00:00Z"),
-        location: "Bandung",
-        eventType: "FREE",
-        eventCategory: "EDUCATION",
-        totalSeats: 50,
-        createdAt: new Date(),
-        image:
-          "https://res.cloudinary.com/dwzmh50ev/image/upload/v1754412123/66a74c948980a5b1fbce2ad0_633c1b64cc7edf69d4a5a060_coding20programming_205_zae2j8.jpg",
+        id: uuid(),
+        userId: user.id,
+        amount: 10000,
+        source: "REFERRAL",
+        expiresAt: dayjs().add(30, "days").toDate(),
+        redeemed: false,
       },
       {
-        id: "e2222222-b222-c333-d444-e55555555555",
-        organizerId: organizer.id,
-        title: "Workshop UI/UX",
-        description: "Belajar desain dari mentor senior!",
-        date: new Date("2025-08-15"),
-        time: new Date("2025-08-15T10:00:00Z"),
-        location: "Jakarta",
-        eventType: "PAID",
-        eventCategory: "ARTS",
-        totalSeats: 30,
-        createdAt: new Date(),
-        image:
-          "https://res.cloudinary.com/dwzmh50ev/image/upload/v1754403910/event_images/mwdnw3aqoeupefaf2v78.jpg",
-      },
-      {
-        id: "e3333333-b222-c333-d444-e55555555555",
-        organizerId: organizer.id,
-        title: "Malam Musik Akustik",
-        description: "Nikmati malam penuh musik akustik di taman kota.",
-        date: new Date("2025-08-20"),
-        time: new Date("2025-08-20T18:30:00Z"),
-        location: "Yogyakarta",
-        eventType: "PAID",
-        eventCategory: "MUSIC",
-        totalSeats: 100,
-        createdAt: new Date(),
-        image:
-          "https://res.cloudinary.com/dwzmh50ev/image/upload/v1754411968/konserJakarta_pvely7.jpg",
-      },
-      {
-        id: "e4444444-b222-c333-d444-e55555555555",
-        organizerId: organizer.id,
-        title: "Networking Bisnis Digital",
-        description: "Bertemu dan belajar dari para pelaku bisnis digital.",
-        date: new Date("2025-08-25"),
-        time: new Date("2025-08-25T09:00:00Z"),
-        location: "Surabaya",
-        eventType: "FREE",
-        eventCategory: "BUSINESS",
-        totalSeats: 75,
-        createdAt: new Date(),
-        image:
-          "https://res.cloudinary.com/dwzmh50ev/image/upload/v1754403910/event_images/mwdnw3aqoeupefaf2v78.jpg",
-      },
-      {
-        id: "e5555555-b222-c333-d444-e55555555555",
-        organizerId: organizer.id,
-        title: "Festival Kuliner Nusantara",
-        description: "Rasakan cita rasa dari berbagai daerah di Indonesia.",
-        date: new Date("2025-08-30"),
-        time: new Date("2025-08-30T11:00:00Z"),
-        location: "Medan",
-        eventType: "PAID",
-        eventCategory: "FOOD_AND_DRINK",
-        totalSeats: 200,
-        createdAt: new Date(),
-        image:
-          "https://res.cloudinary.com/dwzmh50ev/image/upload/v1753246680/cld-sample-4.jpg",
+        id: uuid(),
+        userId: user.id,
+        amount: 5000,
+        source: "REDEMPTION",
+        expiresAt: dayjs().add(60, "days").toDate(),
+        redeemed: false,
       },
     ],
   });
 
-  console.log("✅ Dummy events berhasil ditambahkan");
+  // 6. Buat referral user (jika ingin test diskon referral)
+  const referrer = await prisma.user.create({
+    data: {
+      id: uuid(),
+      name: "Referrer",
+      email: "referrer@example.com",
+      password: "hashedpassword",
+      role: "ATTENDEE",
+    },
+  });
+
+  await prisma.referral.create({
+    data: {
+      id: uuid(),
+      usedById: referrer.id,
+      referredUserId: user.id,
+      referralCodeUsed: "REF123",
+      createdAt: dayjs().subtract(1, "month").toDate(), // masih aktif (≤ 3 bulan)
+    },
+  });
+
+  // 7. Panggil service untuk buat transaksi
+  const transaction = await createTransaction({
+    userId: user.id,
+    eventId: event.id,
+    ticketTypeId: ticketType.id,
+    quantity: 2,
+    usePoints: true,
+  });
+
+  console.log("Transaction created:", transaction.id);
 }
 
 main()
   .catch((e) => {
-    console.error("❌ Error saat seeding:", e);
+    console.error(e);
     process.exit(1);
   })
   .finally(async () => {
