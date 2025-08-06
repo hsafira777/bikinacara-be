@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 // import { PrismaClient } from "@prisma/client";
 // import { addDays, setHours, setMinutes } from "date-fns";
+=======
+// File: prisma/seed.ts
+import { PrismaClient } from "@prisma/client";
+import dayjs from "dayjs";
+import { v4 as uuid } from "uuid";
+import { faker } from "@faker-js/faker";
+>>>>>>> 285dbe985cfe7903cecb1e011fc38c0273b46251
 
 // const prisma = new PrismaClient();
 
+<<<<<<< HEAD
 // async function main() {
 //   // ✅ Coba cari user yang sudah ada
 //   const organizer = await prisma.user.findFirst({

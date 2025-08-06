@@ -4,6 +4,7 @@ export interface ICreateUserParam {
   password: string;
   profilePic?: string;
   role: "ATTENDEE" | "ORGANIZER";
+  refeallCode?: string | null;
 }
 
 export interface IUpdateUserParam {
