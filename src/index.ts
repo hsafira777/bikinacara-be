@@ -48,6 +48,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/events", eventRouter);
 app.use("/api/filter", eventRouter);
 app.use("/api/upcoming", eventRouter);
+app.use("/api/:id", eventRouter);
 
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/dashboard", dashboardRoutes);
