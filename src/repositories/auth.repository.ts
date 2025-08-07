@@ -28,7 +28,7 @@ export async function registerUser(params: IRegisterParam) {
 
   const referralCode = generateReferralCode(params.name);
 
-  // Cari user yang memberikan referral (jika ada)
+
   const referredByUser: User | null = params.referralCode
     ? await prisma.user.findUnique({
         where: { referralCode: params.referralCode },
