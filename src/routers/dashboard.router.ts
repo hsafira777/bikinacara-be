@@ -4,7 +4,6 @@ import { getOrganizerDashboard } from "../controllers/dashboard.controller";
 
 const router = Router();
 
-// Only ORGANIZER can access
 router.get("/organizer", verifyToken, getOrganizerDashboard);
 
 export default router;
