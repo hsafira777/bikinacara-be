@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as userRepo from "../repositories/user.repository";
+import prisma from "../lib/prisma";
 
 export async function getAllUsersController(req: Request, res: Response) {
   try {
@@ -50,14 +51,26 @@ export async function deleteUserController(req: Request, res: Response) {
 // User Details
 export async function getUserDetailController(req: Request, res: Response) {
   try {
-    const userId = (req as any).user.id; 
-    const user = await userRepo.getUserById(userId);
+    const userId = (req as any).user.id;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        referralCode: true,
+        pointsBalance: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
     if (!user) return res.status(404).json({ message: "User not found" });
+
     return res.status(200).json(user);
   } catch (error: any) {
     return res.status(500).json({ message: error.message });
   }
 }
-
-
-
