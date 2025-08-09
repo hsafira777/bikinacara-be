@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as eventRepo from "../repositories/event.repository";
+import { EventQuery } from "../interfaces/event.types";
 
 export const createEventController = async (req: Request, res: Response) => {
   const file = req.file;
@@ -39,7 +40,10 @@ export const getUpcomingEventsController = async ( _req: Request, res: Response 
 };
 
 
-export const getFilteredEventsController = async (req: Request, res: Response) => {
+export const getFilteredEventsController = async (
+  req: Request<{}, {}, {}, EventQuery>,
+  res: Response
+) => {
   try {
     const events = await eventRepo.getFilteredEvents(req.query);
     res.status(200).json(events);

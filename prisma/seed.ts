@@ -1,3 +1,25 @@
+<<<<<<< HEAD
+
+// // import { PrismaClient } from "@prisma/client";
+// // import { addDays, setHours, setMinutes } from "date-fns";
+
+// // File: prisma/seed.ts
+// import { PrismaClient } from "@prisma/client";
+// import dayjs from "dayjs";
+// import { v4 as uuid } from "uuid";
+// import { faker } from "@faker-js/faker";
+
+// // const prisma = new PrismaClient();
+
+// // async function main() {
+// //   // ✅ Coba cari user yang sudah ada
+// //   const organizer = await prisma.user.findFirst({
+// //     where: {
+// //       email: "organizer555@example.com", // ganti sesuai email user yang sudah ada
+// //       role: "ORGANIZER",
+// //     },
+// //   });
+=======
 import { PrismaClient } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
@@ -6,61 +28,80 @@ import { faker } from "@faker-js/faker";
 async function main() {
   const users = [];
   const organizers = [];
+>>>>>>> 882eb577b23cedf21152309763461d6816e7ab66
 
-  // Buat 5 user attendee
-  for (let i = 0; i < 2; i++) {
-    const user = await prisma.user.create({
-      data: {
-        id: uuid(),
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        role: "ATTENDEE",
-      },
-    });
-    users.push(user);
-  }
+// //   if (!organizer) {
+// //     throw new Error("Organizer tidak ditemukan. Buat user terlebih dahulu.");
+// //   }
 
-  // Buat 5 organizer
-  for (let i = 0; i < 2; i++) {
-    const organizer = await prisma.user.create({
-      data: {
-        id: uuid(),
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        role: "ORGANIZER",
-      },
-    });
-    organizers.push(organizer);
-  }
+// //   const events = [
+// //     {
+// //       title: "Indie Folk Festival",
+// //       description: "The best indie festival this year!",
+// //       dateOffset: 1,
+// //       time: "18:30",
+// //       location: "Lapangan Sabuga Bandung",
+// //       image: "/images/event1.jpg",
+// //       eventCategory: "MUSIC",
+// //       eventType: "PAID",
+// //     },
+// //     {
+// //       title: "Lantern Festival",
+// //       description: "Feel the serenity and peace of the Lantern Festival.",
+// //       dateOffset: 2,
+// //       time: "22:00",
+// //       location: "Candi Borobudur Magelang",
+// //       image: "/images/event2.jpg",
+// //       eventCategory: "HOLIDAYS",
+// //       eventType: "FREE",
+// //     },
+// //     {
+// //       title: "Drone Racing Championship",
+// //       description: "Get your drones out, it's time for some racing!",
+// //       dateOffset: 3,
+// //       time: "22:00",
+// //       location: "Stadion GBK Jakarta",
+// //       image: "/images/event3.jpg",
+// //       eventCategory: "HOBBIES",
+// //       eventType: "FREE",
+// //     },
+// //   ];
 
-  for (let i = 0; i < 20; i++) {
-    const user = faker.helpers.arrayElement(users);
-    const organizer = faker.helpers.arrayElement(organizers);
+// //   for (const [index, event] of events.entries()) {
+// //     const [hour, minute] = event.time.split(":").map(Number);
+// //     const date = setMinutes(
+// //       setHours(addDays(new Date(), event.dateOffset), hour),
+// //       minute
+// //     );
 
-    const eventDate = faker.date.between({
-      from: dayjs().subtract(5, "year").toDate(),
-      to: dayjs().add(1, "year").toDate(),
-    });
+// //     await prisma.event.create({
+// //       data: {
+// //         organizerId: organizer.id,
+// //         title: event.title,
+// //         description: event.description,
+// //         date,
+// //         time: date,
+// //         location: event.location,
+// //         image: event.image,
+// //         eventCategory: event.eventCategory as any,
+// //         eventType: event.eventType as any,
+// //         totalSeats: 100 + index * 5,
+// //       },
+// //     });
+// //   }
 
-    const event = await prisma.event.create({
-      data: {
-        id: uuid(),
-        title: faker.lorem.words(3),
-        description: faker.lorem.sentence(),
-        date: eventDate,
-        time: dayjs(eventDate)
-          .set("hour", faker.number.int({ min: 8, max: 22 }))
-          .toDate(),
-        location: faker.location.city(),
-        eventCategory: "MUSIC",
-        eventType: "PAID" ,
-        totalSeats: faker.number.int({ min: 50, max: 500 }),
-        organizerId: organizer.id,
-      },
-    });
+// //   console.log("✅ Berhasil seed event tanpa membuat user baru.");
+// // }
 
+<<<<<<< HEAD
+// // main()
+// //   .catch((e) => {
+// //     console.error("❌ Gagal saat seeding:", e);
+// //   })
+// //   .finally(async () => {
+// //     await prisma.$disconnect();
+// //   });
+=======
     const ticketType = await prisma.ticketType.create({
       data: {
         id: uuid(),
@@ -162,3 +203,4 @@ main()
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
+>>>>>>> 882eb577b23cedf21152309763461d6816e7ab66

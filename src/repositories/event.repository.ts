@@ -116,11 +116,11 @@ export const getFilteredEvents = async (query: EventQuery) => {
     location,
     eventType,
     page = "1",
-    limit = "10",
+    limit = "9",
   } = query;
 
   const pageNumber = Number(page) || 1;
-  const pageSize = Number(limit) || 10;
+  const pageSize = Number(limit) || 9;
   const skip = (pageNumber - 1) * pageSize;
 
   const filters: Prisma.EventWhereInput = {
@@ -128,17 +128,12 @@ export const getFilteredEvents = async (query: EventQuery) => {
       OR: [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
+        { location: { contains: search, mode: "insensitive" } },
       ],
     }),
-    ...(category &&
-      Object.values(EventCategory).includes(category as EventCategory) && {
-        eventCategory: category as EventCategory,
-      }),
-    ...(location && { location }),
-    ...(eventType &&
-      Object.values(EventType).includes(eventType as EventType) && {
-        eventType: eventType as EventType,
-      }),
+    ...(category && { eventCategory: category }),
+    ...(location && { location: { contains: location, mode: "insensitive" } }),
+    ...(eventType && { eventType }),
   };
 
   const [events, total] = await Promise.all([
@@ -152,10 +147,11 @@ export const getFilteredEvents = async (query: EventQuery) => {
   ]);
 
   return {
-    data: events,
+    events,
     total,
     page: pageNumber,
     pageSize,
     totalPages: Math.ceil(total / pageSize),
   };
 };
+

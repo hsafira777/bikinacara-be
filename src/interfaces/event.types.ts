@@ -18,4 +18,6 @@ export interface EventQuery {
   eventType?: EventType;
   page?: string;
   limit?: string;
+  sortBy: "createdAt" | "date";
+  sortOrder: "asc" | "desc";
 }
