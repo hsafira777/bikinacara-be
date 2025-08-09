@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth.middleware";
 import { getAttendeeStatistics } from "../controllers/attendee.controller";
+import {
+  verifyToken,
+  attendeeGuard,
+} from "../middlewares/auth.middleware";
 
 const router = Router();
-router.get("/attendee", verifyToken, getAttendeeStatistics);
+router.get("/", verifyToken, attendeeGuard, getAttendeeStatistics);
 
 export default router;

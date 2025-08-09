@@ -16,5 +16,6 @@ export interface IRegisterParam {
 export interface IJwtPayload {
   role: "ATTENDEE" | "ORGANIZER";
   id: string;
+  name: string;
   email: string;
 }

@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth.middleware";
 import { getOrganizerDashboard } from "../controllers/dashboard.controller";
+import {
+  verifyToken,
+  organizerGuard,
+} from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.get("/organizer", verifyToken, getOrganizerDashboard);
+router.get("/organizer", verifyToken, organizerGuard, getOrganizerDashboard);
 
 export default router;
