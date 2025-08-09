@@ -72,9 +72,18 @@ export const getAllEvents = async (page = 1, limit = 9) => {
 };
 
 // READ event by ID
-export const getEventById = (id: string) => {
-  return prisma.event.findUnique({
-    where: { id },
+export const getEventById = async (eventId: string) => {
+  return prisma.event.findUniqueOrThrow({
+    where: { id: eventId },
+    include: {
+      tickets: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+        },
+      },
+    },
   });
 };
 

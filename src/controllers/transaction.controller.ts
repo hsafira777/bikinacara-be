@@ -18,7 +18,7 @@ export const createTransactionController = async (
       eventId,
       ticketTypeId,
       quantity,
-      usePoints,
+      usePoints: usePoints ?? false,
     });
 
     res.status(201).json({

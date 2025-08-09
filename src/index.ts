@@ -41,13 +41,14 @@ app.use("/api/auth", authRouter);
 app.use("/api/events", eventRouter);
 app.use("/api/filter", eventRouter);
 app.use("/api/upcoming", eventRouter);
-app.use("/api/:id", eventRouter);
 
 app.use("/api/transactions", transactionRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/statistics", statisticRoutes);
 app.use("/api/attendee", attendeeRoutes);
+
+app.use("/api/:id", eventRouter);
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
