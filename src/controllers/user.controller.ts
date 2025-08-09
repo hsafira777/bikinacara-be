@@ -62,6 +62,7 @@ export async function getUserDetailController(req: Request, res: Response) {
         role: true,
         referralCode: true,
         pointsBalance: true,
+        profilePic: true,
         createdAt: true,
         updatedAt: true,
       },

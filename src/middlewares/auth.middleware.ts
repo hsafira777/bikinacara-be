@@ -15,39 +15,43 @@ declare global {
 
 // Middleware utama: token JWT
 export function verifyToken(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as IJwtPayload;
-    req.user = decoded;
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) throw new Error("Unauthorized");
+
+
+    const verifyToken = jwt.verify(token, JWT_SECRET) as IJwtPayload;
+    
+    if (!verifyToken) throw new Error("Invalid token");
+
+    req.user = verifyToken;
     next();
-  } catch (err: any) {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (error) {
+    next(error); 
   }
 }
 
 // Middleware khusus role: Organizer
-export function organizerGuard(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  if (req.user?.role !== "ORGANIZER") {
-    return res.status(403).json({ message: "Forbidden: Organizer only" });
+export function organizerGuard(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (req.user?.role !== "ORGANIZER") {
+      throw new Error("Forbidden: Organizer only");
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }
 
 // Middleware khusus role: Attendee
 export function attendeeGuard(req: Request, res: Response, next: NextFunction) {
-  if (req.user?.role !== "ATTENDEE") {
-    return res.status(403).json({ message: "Forbidden: Attendee only" });
+  try {
+    if (req.user?.role !== "ATTENDEE") {
+      throw new Error("Forbidden: Attendee only");
+    }
+    next();
+  } catch (error) {
+    next(error);
   }
-  next();
 }

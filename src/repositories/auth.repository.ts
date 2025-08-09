@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma";
 import { compare, genSaltSync, hashSync } from "bcrypt";
-import { ILoginParam, IRegisterParam } from "../interfaces/auth.types";
+import { IRegisterParam } from "../interfaces/auth.types";
 import { User } from "@prisma/client";
 
 export async function findUserByEmail(email: string) {
@@ -42,7 +42,7 @@ export async function registerUser(params: IRegisterParam) {
       email: params.email,
       password: hashed,
       referralCode: referralCode,
-      referredById: referredByUser?.id ?? null, // ← Ini otomatis null jika gak ada referral
+      referredById: referredByUser?.id ?? null, 
     },
   });
   

@@ -28,6 +28,9 @@ export async function loginUser(req: Request, res: Response) {
       { expiresIn: "1d" }
     );
 
+    // const decoded = jwt.decode(token);
+    // console.log(decoded);
+
     return res.status(200).json({
       message: "Login successful",
       token,
@@ -44,6 +47,7 @@ export async function loginUser(req: Request, res: Response) {
       .json({ message: err.message || "Internal server error" });
   }
 }
+
 
 export async function registerNewUser(req: Request, res: Response) {
   try {

@@ -29,7 +29,8 @@ export async function createUser(params: ICreateUserParam) {
       password: hashedPassword,
       profilePic: params.profilePic,
       role: params.role,
-      referralCode: params.refeallCode || null,
+      referralCode: params.refeallCode || undefined,
+      pointsBalance: params.pointsBalance, 
     },
   });
 }
