@@ -151,12 +151,26 @@ export const getFilteredEvents = async (query: EventQuery) => {
       skip,
       take: pageSize,
       orderBy: { createdAt: "desc" },
+      include: {
+        tickets: {
+          select: { price: true },
+          orderBy: { price: "asc" },
+          take: 1, 
+        },
+      },
     }),
     prisma.event.count({ where: filters }),
   ]);
 
+  const eventsWithMinPrice = events.map((event) => {
+    const prices =
+      event.tickets?.map((t) => Number(t.price)).filter((p) => !isNaN(p)) || [];
+    const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+    return { ...event, minPrice };
+  });
+
   return {
-    events,
+    events: eventsWithMinPrice,
     total,
     page: pageNumber,
     pageSize,
