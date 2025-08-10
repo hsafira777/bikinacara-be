@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import { PaymentStatus, Prisma, PrismaClient } from "@prisma/client";
 
 export const createTransaction = (
   tx: Prisma.TransactionClient,
@@ -53,6 +53,8 @@ export const redeemPoints = (
   });
 };
 
+
+
 export const findTransactionById = (
   tx: Prisma.TransactionClient,
   id: string
@@ -78,3 +80,15 @@ export const findTransactionById = (
     },
   });
 };
+
+
+// export const updatePaymentStatus = (
+//    tx: Prisma.TransactionClient,
+//   transactionId: string,
+//   paymentStatus: PaymentStatus
+// ) => {
+//   return tx.transaction.update({
+//     where: { id: transactionId },
+//     data: { paymentStatus },
+//   });
+// };

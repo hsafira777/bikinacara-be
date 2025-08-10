@@ -1,8 +1,7 @@
-import cloudinary from "../lib/cloudinary";
 import prisma from "../lib/prisma";
 import { EventCategory, EventType, Prisma } from "@prisma/client";
 import { EventQuery } from "../interfaces/event.types";
-import { Express } from "express";
+import { uploadToCloudinary } from "../services/upload.service";
 import { startOfToday } from "date-fns";
 
 // CREATE event
@@ -23,9 +22,7 @@ export const createEvent = async (
   let imageUrl: string | undefined;
 
   if (file) {
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: "event_images",
-    });
+    const result: any = await uploadToCloudinary(file.buffer, "event_images");
     imageUrl = result.secure_url;
   }
 
@@ -33,15 +30,13 @@ export const createEvent = async (
     data: {
       title: data.title,
       description: data.description,
-      date: data.date,
-      time: data.time,
+      date: new Date(data.date),
+      time: new Date(data.time),
       location: data.location,
       eventCategory: data.eventCategory,
       eventType: data.eventType,
       totalSeats: Number(data.totalSeats),
-      organizer: {
-        connect: { id: data.organizerId },
-      },
+      organizer: { connect: { id: data.organizerId } },
       image: imageUrl,
     },
   });

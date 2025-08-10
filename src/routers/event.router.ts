@@ -11,6 +11,7 @@ import {
 import { verifyToken } from "../middlewares/auth.middleware";
 import { upload } from "../middlewares/upload.middleware";
 import { organizerGuard } from "../middlewares/auth.middleware";
+
 const router = Router();
 
 router.get("/filter", getFilteredEventsController);

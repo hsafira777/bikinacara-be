@@ -3,10 +3,13 @@ import * as eventRepo from "../repositories/event.repository";
 import { EventQuery } from "../interfaces/event.types";
 
 export const createEventController = async (req: Request, res: Response) => {
-  const file = req.file;
-  const event = await eventRepo.createEvent({ ...req.body, file });
-  res.status(201).json(event);
-} 
+  try {
+    const event = await eventRepo.createEvent(req.body, req.file);
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create event", error });
+  }
+};
 
 export const getAllEventsController = async (_req: Request, res: Response) => {
   const events = await eventRepo.getAllEvents();
