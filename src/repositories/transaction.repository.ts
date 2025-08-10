@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 
 export const createTransaction = (
   tx: Prisma.TransactionClient,
@@ -50,5 +50,31 @@ export const redeemPoints = (
   return tx.point.updateMany({
     where: { id: { in: pointIds } },
     data: { redeemed: true, usedInTransactionId: transactionId },
+  });
+};
+
+export const findTransactionById = (
+  tx: Prisma.TransactionClient,
+  id: string
+) => {
+  return tx.transaction.findUnique({
+    where: { id },
+    include: {
+      event: {
+        select: {
+          title: true,
+        },
+      },
+      items: {
+        include: {
+          ticketType: {
+            select: {
+              name: true,
+              price: true,
+            },
+          },
+        },
+      },
+    },
   });
 };

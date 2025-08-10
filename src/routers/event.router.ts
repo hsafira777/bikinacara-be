@@ -17,7 +17,7 @@ router.get("/filter", getFilteredEventsController);
 router.get("/upcoming", getUpcomingEventsController);
 router.get("/", getAllEventsController);
 router.get("/:id", getEventByIdController);
-router.post("/", verifyToken,organizerGuard, upload.single("image"), createEventController);
+router.post("/", verifyToken, organizerGuard, upload.single("image"), createEventController);
 router.put("/:id", verifyToken, organizerGuard, updateEventController);
 router.delete("/:id", verifyToken, organizerGuard, deleteEventController);
 
