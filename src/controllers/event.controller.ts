@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as eventRepo from "../repositories/event.repository";
 import { EventQuery } from "../interfaces/event.types";
+import * as ticketRepo from "../repositories/ticket.repository";
 
 export const createEventController = async (req: Request, res: Response) => {
   try {
@@ -11,6 +12,24 @@ export const createEventController = async (req: Request, res: Response) => {
   }
 };
 
+export const createTicketEventController = async (req: Request, res: Response) => {
+  try {
+    const { eventId, tickets } = req.body;
+
+    if (!eventId || !Array.isArray(tickets) || tickets.length === 0) {
+      return res.status(400).json({ error: "Invalid ticket data" });
+    }
+
+    const result = await ticketRepo.createTicketEvent(eventId, tickets);
+
+    res.status(201).json({
+      message: "Ticket types created successfully",
+      count: result.count,
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};
 export const getAllEventsController = async (_req: Request, res: Response) => {
   const events = await eventRepo.getAllEvents();
   res.json(events);

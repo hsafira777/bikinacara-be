@@ -9,8 +9,8 @@ export const createEvent = async (
   data: {
     title: string;
     description: string;
-    date: Date | string;
-    time: Date | string;
+    date: string;
+    time: string;
     location: string;
     eventCategory: EventCategory;
     eventType: EventType;
@@ -19,19 +19,21 @@ export const createEvent = async (
   },
   file?: Express.Multer.File
 ) => {
-  let imageUrl: string | undefined;
+  let imageUrl: string | null = null;
 
   if (file) {
     const result: any = await uploadToCloudinary(file.buffer, "event_images");
     imageUrl = result.secure_url;
   }
 
+  const eventDateTime = new Date(`${data.date}T${data.time}`);
+
   return prisma.event.create({
     data: {
       title: data.title,
       description: data.description,
       date: new Date(data.date),
-      time: new Date(data.time),
+      time: eventDateTime,
       location: data.location,
       eventCategory: data.eventCategory,
       eventType: data.eventType,

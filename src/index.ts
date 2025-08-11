@@ -58,8 +58,6 @@ app.use("/api/referral", referralRouter);
 app.use("/api/points", pointsRouter);
 app.use("/api/discount", discountRouter);
 
-app.use("/api/:id", eventRouter);
-
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
