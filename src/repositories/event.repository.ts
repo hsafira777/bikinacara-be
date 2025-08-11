@@ -3,6 +3,7 @@ import prisma from "../lib/prisma";
 import { EventCategory, EventType, Prisma } from "@prisma/client";
 import { EventQuery } from "../interfaces/event.types";
 import { Express } from "express";
+import { startOfToday } from "date-fns";
 
 // CREATE event
 export const createEvent = async (
@@ -47,14 +48,42 @@ export const createEvent = async (
 };
 
 // READ all events
-export const getAllEvents = () => {
-  return prisma.event.findMany();
+export const getAllEvents = async (page = 1, limit = 9) => {
+  const pageNumber = Number(page) || 1;
+  const pageSize = Number(limit) || 9;
+  const skip = (pageNumber - 1) * pageSize;
+
+  const [events, total] = await Promise.all([
+    prisma.event.findMany({
+      skip,
+      take: pageSize,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.event.count(),
+  ]);
+
+  return {
+    events,
+    total,
+    page: pageNumber,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
 };
 
 // READ event by ID
-export const getEventById = (id: string) => {
-  return prisma.event.findUnique({
-    where: { id },
+export const getEventById = async (eventId: string) => {
+  return prisma.event.findUniqueOrThrow({
+    where: { id: eventId },
+    include: {
+      tickets: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+        },
+      },
+    },
   });
 };
 
@@ -78,12 +107,13 @@ export const getUpcomingEvents = () => {
   return prisma.event.findMany({
     where: {
       date: {
-        gte: new Date(),
+        gte: startOfToday(),
       },
     },
     orderBy: {
       date: "asc",
     },
+    take: 3,
   });
 };
 
@@ -95,11 +125,11 @@ export const getFilteredEvents = async (query: EventQuery) => {
     location,
     eventType,
     page = "1",
-    limit = "10",
+    limit = "9",
   } = query;
 
   const pageNumber = Number(page) || 1;
-  const pageSize = Number(limit) || 10;
+  const pageSize = Number(limit) || 9;
   const skip = (pageNumber - 1) * pageSize;
 
   const filters: Prisma.EventWhereInput = {
@@ -107,17 +137,12 @@ export const getFilteredEvents = async (query: EventQuery) => {
       OR: [
         { title: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
+        { location: { contains: search, mode: "insensitive" } },
       ],
     }),
-    ...(category &&
-      Object.values(EventCategory).includes(category as EventCategory) && {
-        eventCategory: category as EventCategory,
-      }),
-    ...(location && { location }),
-    ...(eventType &&
-      Object.values(EventType).includes(eventType as EventType) && {
-        eventType: eventType as EventType,
-      }),
+    ...(category && { eventCategory: category }),
+    ...(location && { location: { contains: location, mode: "insensitive" } }),
+    ...(eventType && { eventType }),
   };
 
   const [events, total] = await Promise.all([
@@ -131,10 +156,11 @@ export const getFilteredEvents = async (query: EventQuery) => {
   ]);
 
   return {
-    data: events,
+    events,
     total,
     page: pageNumber,
     pageSize,
     totalPages: Math.ceil(total / pageSize),
   };
 };
+

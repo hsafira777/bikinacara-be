@@ -5,6 +5,7 @@ import {
   getEventByIdController,
   updateEventController,
   deleteEventController,
+  getUpcomingEventsController,
   getFilteredEventsController,
 } from "../controllers/event.controller";
 import { verifyToken } from "../middlewares/auth.middleware";
@@ -13,6 +14,7 @@ import { organizerGuard } from "../middlewares/auth.middleware";
 const router = Router();
 
 router.get("/filter", getFilteredEventsController);
+router.get("/upcoming", getUpcomingEventsController);
 router.get("/", getAllEventsController);
 router.get("/:id", getEventByIdController);
 router.post("/", verifyToken,organizerGuard, upload.single("image"), createEventController);
