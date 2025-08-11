@@ -12,6 +12,9 @@ import transactionRoutes from "./routers/transaction.router";
 import dashboardRoutes from "./routers/dashboard.router";
 import statisticRoutes from "./routers/statistic.router";
 import attendeeRoutes from "./routers/attendee.router";
+import referralRouter from "./routers/referral.router";
+import pointsRouter from "./routers/points.router";
+import discountRouter from "./routers/discount.router";
 
 
 const app = express();
@@ -48,7 +51,12 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/statistics", statisticRoutes);
 app.use("/api/attendee", attendeeRoutes);
 
+app.use("/api/referral", referralRouter);
+app.use("/api/points", pointsRouter);
+app.use("/api/discount", discountRouter);
+
 app.use("/api/:id", eventRouter);
+
 
 // Error handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

@@ -1,125 +1,65 @@
-import { PrismaClient } from "@prisma/client";
-import dayjs from "dayjs";
+import prisma from "../lib/prisma";
+import * as referralRepo from "../repositories/referral.repository";
 
-const prisma = new PrismaClient();
 
 const REFERRAL_POINT = 10000;
+const REFERRAL_VALID_DAYS = 90;
 const REFERRAL_DISCOUNT_PERCENTAGE = 10;
-// const REFERRAL_EXPIRY_MONTHS = 3;
+
 
 export const applyReferralOnRegister = async (
   referredUserId: string,
   referralCode: string
 ) => {
-  const referrer = await prisma.user.findFirst({
-    where: { referralCode },
-  });
-
+  const referrer = await referralRepo.findUserByReferralCode(referralCode);
   if (!referrer) throw new Error("Referral code not found");
+  if (referrer.id === referredUserId)
+    throw new Error("Cannot use your own referral code");
 
-
-  await prisma.referral.create({
-    data: {
-      usedById: referrer.id,
-      referredUserId,
-      referralCodeUsed: referralCode,
-    },
-  });
-
-
-  await prisma.point.create({
-    data: {
-      userId: referrer.id,
-      amount: REFERRAL_POINT,
-      source: "REFERRAL",
-      expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 3 bulan
-    },
-  });
-
-
-  await prisma.user.update({
-    where: { id: referrer.id },
-    data: {
-      pointsBalance: {
-        increment: REFERRAL_POINT,
-      },
-    },
-  });
-};
-
-
-export const applyPointsAndDiscount = async (
-  userId: string,
-  ticketPrice: number
-): Promise<{
-  finalPrice: number;
-  usedPoints: number;
-  discount: number;
-}> => {
-  const referrals = await prisma.referral.findMany({
-    where: {
-      referredUserId: userId,
-      createdAt: {
-        gte: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      },
-    },
-  });
-
-  const isEligibleForReferralDiscount = referrals.length > 0;
-  const discount = isEligibleForReferralDiscount
-    ? Math.floor((ticketPrice * REFERRAL_DISCOUNT_PERCENTAGE) / 100)
-    : 0;
-
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new Error("User not found");
-
-  const usedPoints = Math.min(user.pointsBalance, ticketPrice - discount);
-  const finalPrice = ticketPrice - discount - usedPoints;
-
-  return {
-    finalPrice,
-    usedPoints,
-    discount,
-  };
-};
-
-export const redeemPoints = async (
-  userId: string,
-  amount: number,
-  transactionId: string
-) => {
-  const activePoints = await prisma.point.findMany({
-    where: {
-      userId,
-      redeemed: false,
-      expiresAt: {
-        gte: new Date(),
-      },
-    },
-    orderBy: { createdAt: "asc" },
-  });
-
-  let remaining = amount;
-  for (const point of activePoints) {
-    if (remaining <= 0) break;
-
-    await prisma.point.update({
-      where: { id: point.id },
+  return prisma.$transaction(async (tx) => {
+   
+    await tx.referral.create({
       data: {
-        redeemed: true,
-        usedInTransactionId: transactionId,
+        usedById: referrer.id,
+        referredUserId,
+        referralCodeUsed: referralCode,
       },
     });
 
-    remaining -= point.amount;
-  }
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      pointsBalance: {
-        decrement: amount,
+    
+    const expiresAt = new Date(
+      Date.now() + REFERRAL_VALID_DAYS * 24 * 60 * 60 * 1000
+    );
+    await tx.point.create({
+      data: {
+        userId: referrer.id,
+        amount: REFERRAL_POINT,
+        source: "REFERRAL",
+        expiresAt,
       },
-    },
+    });
+
+    
+    await tx.user.update({
+      where: { id: referrer.id },
+      data: { pointsBalance: { increment: REFERRAL_POINT } },
+    });
+
+
+    const discountExpiry = expiresAt;
+    const discount = await tx.discount.create({
+      data: {
+        userId: referredUserId,
+        percentage: REFERRAL_DISCOUNT_PERCENTAGE,
+        expiredAt: discountExpiry,
+      },
+    });
+
+    await tx.user.update({
+      where: { id: referredUserId },
+      data: { referredById: referrer.id },
+    });
+
+    return { success: true, discount };
   });
 };
