@@ -18,10 +18,7 @@ export const getValidDiscountsController = async (
   }
 };
 
-/**
- * Preview checkout: apply discount & points (does NOT finalize)
- * POST body: { userId, ticketPrice }
- */
+
 export const previewCheckoutController = async (
   req: Request,
   res: Response
@@ -32,13 +29,12 @@ export const previewCheckoutController = async (
       return res.status(400).json({ error: "Invalid input" });
     }
 
-    // compute best discount
+
     const discountResult = await discountService.computeDiscountForUser(
       userId,
       ticketPrice
     );
 
-    // compute available points (non-expired)
     const activePoints = await PointsRepository.findActivePoints(userId);
     const totalPoints = activePoints.reduce((sum: number, p: { amount: number }) => sum + p.amount, 0);
 

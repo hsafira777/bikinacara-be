@@ -5,10 +5,7 @@ export const listValidDiscounts = async (userId: string) => {
   return discountRepo.findValidDiscountsForUser(userId);
 };
 
-/**
- * Apply best available discount (if any) and return chosen discount and final price.
- * NOTE: This function DOES NOT mark discount used; marking used should happen only on successful checkout.
- */
+
 export const computeDiscountForUser = async (
   userId: string,
   ticketPrice: number
@@ -18,7 +15,7 @@ export const computeDiscountForUser = async (
     return { discountAmount: 0, discountRecord: null, finalPrice: ticketPrice };
   }
 
-  // choose the best discount (highest percentage) or first; here choose highest percentage
+ 
   const best = discounts.reduce((a, b) =>
     a.percentage >= b.percentage ? a : b
   );
